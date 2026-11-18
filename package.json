@@ -1,0 +1,33 @@
+{
+  "name": "concesiones-ani",
+  "version": "1.0.0",
+  "description": "Mapa interactivo de las vías concesionadas por la ANI: trazado, longitud, concesionario, interventoría y municipios.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/build.js --watch",
+    "start": "node scripts/serve.js",
+    "datos": "node scripts/gen_proyectos.js",
+    "test": "node tests/smoke.mjs",
+    "pages": "node scripts/build.js && node scripts/prepare-pages.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edgarenrique8c-creator/Mapas-ANI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edgarenrique8c-creator/Mapas-ANI/issues"
+  },
+  "homepage": "https://github.com/edgarenrique8c-creator/Mapas-ANI#readme",
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "jsdom": "^28.0.0"
+  }
+}
