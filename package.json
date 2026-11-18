@@ -9,7 +9,8 @@
     "dev": "node scripts/build.js --watch",
     "start": "node scripts/serve.js",
     "datos": "node scripts/gen_proyectos.js",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs",
+    "pages": "node scripts/build.js && node scripts/prepare-pages.js"
   },
   "repository": {
     "type": "git",

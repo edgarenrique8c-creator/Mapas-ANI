@@ -7,10 +7,20 @@ Infraestructura (ANI)** y permite responder tres preguntas concretas para un tra
 2. **¿Quién es el concesionario y quién la interventoría?** (con NIT, contrato y datos de contacto)
 3. **¿En qué municipio se debe radicar una petición** y ante quién.
 
+## Verlo publicado (GitHub Pages)
+
+El sitio se publica automáticamente con GitHub Actions en
+`https://edgarenrique8c-creator.github.io/Mapas-ANI/` cada vez que se hace push a `main`.
+
+Para habilitarlo una sola vez: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+El workflow `.github/workflows/pages.yml` compila el paquete, arma `dist/` con la app y los datos y
+lo publica. Para generar ese artefacto localmente: `npm run pages` (queda en `dist/`).
+
 ## Cómo se usa
 
 - `npm install` y luego `npm start` → http://localhost:5173
 - `npm run build` regenera el paquete del navegador en `public/assets/app.js`.
+- `npm run pages` genera el sitio estático listo para publicar en `dist/`.
 - `npm run datos` regenera `data/proyectos.json` a partir del CSV de la ANI y de las tablas
   de atributos (Modos_ANI / SECOP II) incluidas en `scripts/gen_proyectos.js`.
 
