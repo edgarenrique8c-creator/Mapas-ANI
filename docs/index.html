@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concesiones ANI · Mapa interactivo de vías concesionadas</title>
+<meta name="description" content="Mapa interactivo de las vías concesionadas por la Agencia Nacional de Infraestructura (ANI): longitudes, concesionario, interventoría y municipios de cada corredor." />
+<link rel="stylesheet" href="./assets/leaflet.css" />
+<link rel="stylesheet" href="./assets/app.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230b2545'/%3E%3Cpath d='M20 78 L44 26 L56 52 L66 34 L82 78' stroke='%2337cfa5' stroke-width='8' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 40 40" width="34" height="34"><rect width="40" height="40" rx="9" fill="#123a63"/><path d="M8 31 L17.5 10 L23 21.5 L27.5 13.5 L33 31" stroke="#37cfa5" stroke-width="3.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </span>
+    <div class="brand-txt">
+      <h1>Concesiones ANI <span class="tag">vías</span></h1>
+      <p>Mapa interactivo de corredores concesionados · concesionario e interventoría</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button id="btn-reset" class="ghost" type="button" title="Ver todo el país">Ver todo el país</button>
+    <button id="btn-about" class="ghost" type="button">Fuentes y metodología</button>
+    <button id="btn-refresh" class="primary" type="button" title="Volver a descargar la geometría oficial de la ANI">
+      <span class="dot"></span> Actualizar geometría
+    </button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="panel search-panel">
+      <label class="sr-only" for="q">Buscar corredor, concesionario o interventoría</label>
+      <div class="searchbox">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5 L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Buscar corredor, concesionario o interventoría…" autocomplete="off" />
+        <kbd>/</kbd>
+      </div>
+      <div class="filters">
+        <select id="f-tipo" aria-label="Filtrar por modo">
+          <option value="">Todos los modos</option>
+          <option value="Carretero">Carretero</option>
+          <option value="Férreo">Férreo</option>
+          <option value="Fluvial">Fluvial</option>
+        </select>
+        <select id="f-gen" aria-label="Filtrar por generación">
+          <option value="">Todas las generaciones</option>
+          <option value="1G">1G</option><option value="2G">2G</option>
+          <option value="3G">3G</option><option value="4G">4G</option>
+          <option value="5G">5G</option>
+        </select>
+        <select id="f-etapa" aria-label="Filtrar por etapa">
+          <option value="">Todas las etapas</option>
+          <option value="Operación">Operación</option>
+          <option value="Construcción">Construcción</option>
+          <option value="Pre-construcción">Pre-construcción</option>
+          <option value="Estructuración">Estructuración</option>
+          <option value="Reversión">Reversión / revertido</option>
+        </select>
+      </div>
+      <div class="colorbar-row">
+        <span class="lbl">Colorear por</span>
+        <div class="segmented" role="group" aria-label="Colorear por">
+          <button data-color="gen" class="active" type="button">Generación</button>
+          <button data-color="etapa" type="button">Etapa</button>
+          <button data-color="tipo" type="button">Modo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel stats" id="stats"></div>
+
+    <div class="panel list-panel">
+      <div class="list-head">
+        <h2 id="list-title">Corredores ANI</h2>
+        <span id="list-count" class="pill">—</span>
+      </div>
+      <div id="list" class="list" role="listbox" aria-label="Corredores concesionados"></div>
+      <div class="list-foot">
+        <button id="btn-export" class="linkbtn" type="button">Descargar CSV filtrado</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="map-wrap">
+    <div id="map" class="map"></div>
+
+    <div class="map-overlay map-legend" id="legend"></div>
+
+    <div class="map-overlay map-status" id="status">
+      <span class="spinner" id="status-spinner"></span>
+      <span id="status-text">Cargando geometría oficial de la ANI…</span>
+    </div>
+
+    <div class="map-overlay map-hint" id="hint">
+      Haz clic en cualquier punto del mapa para saber el <strong>municipio</strong> y qué corredor/concesionario responde allí.
+    </div>
+
+    <div class="map-overlay point-card hidden" id="point-card">
+      <button class="close" id="point-close" type="button" aria-label="Cerrar">×</button>
+      <div id="point-body"></div>
+    </div>
+  </section>
+
+  <aside class="detail hidden" id="detail" aria-live="polite">
+    <button class="close" id="detail-close" type="button" aria-label="Cerrar ficha">×</button>
+    <div id="detail-body"></div>
+  </aside>
+</main>
+
+<div class="modal hidden" id="about">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <button class="close" id="about-close" type="button" aria-label="Cerrar">×</button>
+    <h2 id="about-title">Fuentes, alcance y metodología</h2>
+    <div id="about-body"></div>
+  </div>
+</div>
+
+<script src="./assets/leaflet.js"></script>
+<script src="./assets/app.js"></script>
+</body>
+</html>

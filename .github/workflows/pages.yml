@@ -3,6 +3,8 @@ name: Publicar en GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,18 +13,19 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
+    name: Compilar sitio
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Instalar dependencias
@@ -32,14 +35,28 @@ jobs:
         run: npm run build
 
       - name: Armar el sitio (public + data)
-        run: node scripts/prepare-pages.js
+        run: node scripts/prepare-pages.js dist
+
+      - name: Verificar el artefacto
+        run: |
+          set -e
+          test -f dist/index.html
+          test -f dist/assets/app.js
+          test -f dist/.nojekyll
+          test -s dist/data/proyectos.json
+          grep -q "./assets/app.js" dist/index.html
+          echo "artefacto OK"
 
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
 
   deploy:
+    name: Desplegar
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

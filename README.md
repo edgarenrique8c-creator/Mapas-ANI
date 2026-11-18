@@ -9,18 +9,33 @@ Infraestructura (ANI)** y permite responder tres preguntas concretas para un tra
 
 ## Verlo publicado (GitHub Pages)
 
-El sitio se publica automáticamente con GitHub Actions en
-`https://edgarenrique8c-creator.github.io/Mapas-ANI/` cada vez que se hace push a `main`.
+Sitio: `https://edgarenrique8c-creator.github.io/Mapas-ANI/`
 
-Para habilitarlo una sola vez: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-El workflow `.github/workflows/pages.yml` compila el paquete, arma `dist/` con la app y los datos y
-lo publica. Para generar ese artefacto localmente: `npm run pages` (queda en `dist/`).
+Hay **dos formas** de publicarlo; usa una.
+
+### Opción A · GitHub Actions (recomendada, se actualiza sola)
+
+1. **Settings → Pages → Source: GitHub Actions** (una sola vez).
+2. Merge a `main` → el workflow `.github/workflows/pages.yml` compila y publica.
+
+El workflow también corre en cada pull request, pero solo compila y verifica el artefacto
+(no despliega), así los errores se ven antes de mergear.
+
+### Opción B · Sin Actions (rama `main` / carpeta `docs`)
+
+Ya está commiteada la versión construida en `docs/`. Solo hay que ir a
+**Settings → Pages → Source: Deploy from a branch → Branch: `main` / carpeta `/docs`**.
+No requiere compilación ni permisos de Actions. Para regenerarla tras un cambio:
+
+```bash
+npm ci && npm run build && npm run pages:docs   # equivale a node scripts/prepare-pages.js docs
+```
 
 ## Cómo se usa
 
 - `npm install` y luego `npm start` → http://localhost:5173
 - `npm run build` regenera el paquete del navegador en `public/assets/app.js`.
-- `npm run pages` genera el sitio estático listo para publicar en `dist/`.
+- `npm run pages` genera el sitio estático en `dist/`; `npm run pages:docs` lo genera en `docs/` (Pages sin Actions).
 - `npm run datos` regenera `data/proyectos.json` a partir del CSV de la ANI y de las tablas
   de atributos (Modos_ANI / SECOP II) incluidas en `scripts/gen_proyectos.js`.
 
